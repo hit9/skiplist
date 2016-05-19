@@ -5,14 +5,6 @@ Package skiplist implements in-memory skiplist.
 
 https://godoc.org/github.com/hit9/skiplist
 
-```
-Level[0]: {1 data2} -> {2 data4} -> {3 data1} -> {5 data3} -> {6 data5} -> nil
-Level[1]: {1 data2} -> {2 data4} -> {5 data3} -> {6 data5} -> nil
-Level[2]: {1 data2} -> {5 data3} -> {6 data5} -> nil
-Level[3]: {1 data2} -> {6 data5} -> nil
-Level[4]: {6 data5} -> nil
-```
-
 Example
 -------
 
@@ -51,6 +43,16 @@ func main() {
 	// Print the skiplist.
 	sl.Print(os.Stdout)
 }
+```
+
+Output:
+
+```
+Level[0]: {1 data2} -> {2 data4} -> {3 data1} -> {5 data3} -> {6 data5} -> nil
+Level[1]: {1 data2} -> {2 data4} -> {5 data3} -> {6 data5} -> nil
+Level[2]: {1 data2} -> {5 data3} -> {6 data5} -> nil
+Level[3]: {1 data2} -> {6 data5} -> nil
+Level[4]: {6 data5} -> nil
 ```
 
 Complexity
