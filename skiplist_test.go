@@ -69,6 +69,55 @@ func TestDelete(t *testing.T) {
 	}
 }
 
+func TestPopFirst(t *testing.T) {
+	sl := New(3)
+	Must(t, sl.First() == nil)
+	sl.Put(Int(4))
+	sl.Put(Int(3))
+	sl.Put(Int(2))
+	sl.Put(Int(1))
+	Must(t, equal(sl.First(), Int(1)))
+	Must(t, sl.Len() == 4)
+
+	item := sl.PopFirst()
+	Must(t, equal(sl.First(), Int(2)))
+	Must(t, equal(item, Int(1)))
+	Must(t, sl.Len() == 3)
+
+	item = sl.PopFirst()
+	Must(t, equal(sl.First(), Int(3)))
+	Must(t, equal(item, Int(2)))
+	Must(t, sl.Len() == 2)
+
+	item = sl.PopFirst()
+	Must(t, equal(sl.First(), Int(4)))
+	Must(t, equal(item, Int(3)))
+	Must(t, sl.Len() == 1)
+
+	item = sl.PopFirst()
+	Must(t, sl.First() == nil)
+	Must(t, equal(item, Int(4)))
+	Must(t, sl.Len() == 0)
+
+	sl.Put(Int(8))
+	Must(t, equal(sl.First(), Int(8)))
+	Must(t, sl.Len() == 1)
+	item = sl.PopFirst()
+	Must(t, sl.First() == nil)
+	Must(t, equal(item, Int(8)))
+	Must(t, sl.Len() == 0)
+
+	n := 1024
+	for i := n - 1; i >= 0; i-- {
+		sl.Put(Int(i))
+	}
+
+	for i := n - 1; i >= 0; i-- {
+		item = sl.PopFirst()
+		Must(t, sl.Len() == i)
+	}
+}
+
 func TestIteratorNil(t *testing.T) {
 	sl := New(7)
 	n := 1024

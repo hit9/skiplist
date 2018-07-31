@@ -234,6 +234,24 @@ func (sl *SkipList) First() Item {
 	return sl.head.forwards[0].item
 }
 
+// PopFirst pops the first item and returns it, nil on empty. O(1)
+func (sl *SkipList) PopFirst() Item {
+	if sl.length == 0 {
+		return nil
+	}
+	n := sl.head.forwards[0]
+	for i := sl.level - 1; i >= 0; i-- { // Release upward
+		if sl.head.forwards[i] == n {
+			sl.head.forwards[i] = n.forwards[i]
+		}
+	}
+	for sl.level > 1 && sl.head.forwards[sl.level-1] == nil {
+		sl.level -= 1
+	}
+	sl.length--
+	return n.item
+}
+
 // NewIterator returns a new iterator on this skiplist with an item start,
 // if the start is nil, iterator starts on head.
 // Filter items >= start.
