@@ -226,6 +226,14 @@ func (sl *SkipList) Delete(item Item) Item {
 	return n.item
 }
 
+// First returns the first item, nil on not found. O(1)
+func (sl *SkipList) First() Item {
+	if sl.length == 0 {
+		return nil
+	}
+	return sl.head.forwards[0].item
+}
+
 // NewIterator returns a new iterator on this skiplist with an item start,
 // if the start is nil, iterator starts on head.
 // Filter items >= start.

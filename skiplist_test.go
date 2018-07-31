@@ -16,6 +16,18 @@ func Must(t *testing.T, v bool) {
 	}
 }
 
+func TestFirst(t *testing.T) {
+	sl := New(4)
+	Must(t, sl.First() == nil)
+	sl.Put(Int(2))
+	sl.Put(Int(1))
+	Must(t, equal(sl.First(), Int(1)))
+	sl.Delete(Int(1))
+	Must(t, equal(sl.First(), Int(2)))
+	sl.Delete(Int(2))
+	Must(t, sl.First() == nil)
+}
+
 func TestPut(t *testing.T) {
 	sl := New(16)
 	n := 1024 * 10
