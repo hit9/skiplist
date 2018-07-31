@@ -246,7 +246,7 @@ func (sl *SkipList) PopFirst() Item {
 		}
 	}
 	for sl.level > 1 && sl.head.forwards[sl.level-1] == nil {
-		sl.level -= 1
+		sl.level--
 	}
 	sl.length--
 	return n.item
