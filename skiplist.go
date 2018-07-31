@@ -252,6 +252,12 @@ func (sl *SkipList) PopFirst() Item {
 	return n.item
 }
 
+// Clear the skiplist.
+func (sl *SkipList) Clear() {
+	for sl.PopFirst() != nil {
+	}
+}
+
 // NewIterator returns a new iterator on this skiplist with an item start,
 // if the start is nil, iterator starts on head.
 // Filter items >= start.

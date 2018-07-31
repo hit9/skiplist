@@ -118,6 +118,20 @@ func TestPopFirst(t *testing.T) {
 	}
 }
 
+func TestClear(t *testing.T) {
+	sl := New(4)
+	sl.Put(Int(4))
+	sl.Put(Int(3))
+	sl.Put(Int(2))
+	sl.Put(Int(1))
+	Must(t, sl.Len() == 4)
+	sl.Clear()
+	Must(t, sl.Len() == 0)
+	Must(t, sl.head.item == nil)
+	Must(t, sl.First() == nil)
+	Must(t, sl.Level() == 1)
+}
+
 func TestIteratorNil(t *testing.T) {
 	sl := New(7)
 	n := 1024
