@@ -65,6 +65,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"time"
 )
 
 // Item is a single object in the skiplist.
@@ -100,6 +101,7 @@ type SkipList struct {
 	level    int
 	maxLevel int
 	head     *node
+	rand     *rand.Rand
 }
 
 // Iterator is skiplist iterator.
@@ -120,12 +122,18 @@ func newNode(level int, item Item) *node {
 
 // New creates a new SkipList.
 func New(maxLevel int) *SkipList {
+	return NewWithRandSeed(maxLevel, time.Now().UnixNano())
+}
+
+// NewWithRandSeed creates a new SkipList with a given seed.
+func NewWithRandSeed(maxLevel int, seed int64) *SkipList {
 	if maxLevel < 2 {
 		panic("skiplist: bad maxLevel")
 	}
 	return &SkipList{
 		maxLevel: maxLevel,
 		head:     newNode(maxLevel, nil),
+		rand:     rand.New(rand.NewSource(seed)),
 	}
 }
 
@@ -141,7 +149,7 @@ func (sl *SkipList) MaxLevel() int { return sl.maxLevel }
 // randLevel returns a level between 1 and maxLevel.
 func (sl *SkipList) randLevel() int {
 	level := 1
-	for rand.Int()&0xffff < int(FactorP*float64(0xffff)) {
+	for sl.rand.Int()&0xffff < int(FactorP*float64(0xffff)) {
 		level++
 	}
 	if level < sl.maxLevel {
