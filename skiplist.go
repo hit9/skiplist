@@ -102,6 +102,7 @@ type SkipList struct {
 	maxLevel int
 	head     *node
 	rand     *rand.Rand
+	buf      []*node
 }
 
 // Iterator is skiplist iterator.
@@ -116,7 +117,7 @@ var FactorP = 0.5
 func newNode(level int, item Item) *node {
 	return &node{
 		item:     item,
-		forwards: make([]*node, level),
+		forwards: make([]*node, level, level),
 	}
 }
 
@@ -134,6 +135,7 @@ func NewWithRandSeed(maxLevel int, seed int64) *SkipList {
 		maxLevel: maxLevel,
 		head:     newNode(maxLevel, nil),
 		rand:     rand.New(rand.NewSource(seed)),
+		buf:      make([]*node, maxLevel, maxLevel),
 	}
 }
 
@@ -158,10 +160,17 @@ func (sl *SkipList) randLevel() int {
 	return sl.maxLevel
 }
 
+func (sl *SkipList) resetBuf() {
+	for i := 0; i < sl.maxLevel; i++ {
+		sl.buf[i] = nil
+	}
+}
+
 // Put adds an item to the skiplist. O(logN)
 func (sl *SkipList) Put(item Item) {
-	// Make the update array and find the node.
-	update := make([]*node, sl.maxLevel)
+	// Reuse update array and find the node.
+	sl.resetBuf()
+	update := sl.buf
 	n := sl.head
 	for i := sl.level - 1; i >= 0; i-- {
 		for n.forwards[i] != nil && n.forwards[i].item.Less(item) {
@@ -207,7 +216,8 @@ func (sl *SkipList) Has(item Item) bool { return sl.Get(item) != nil }
 // Delete an item from skiplist and return it, nil on not found. O(logN)
 func (sl *SkipList) Delete(item Item) Item {
 	// Find node.
-	update := make([]*node, sl.maxLevel)
+	sl.resetBuf()
+	update := sl.buf
 	head := sl.head
 	n := head
 	for i := sl.level - 1; i >= 0; i-- {
