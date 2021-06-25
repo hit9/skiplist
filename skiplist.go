@@ -65,6 +65,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"time"
 )
 
 // Item is a single object in the skiplist.
@@ -100,6 +101,8 @@ type SkipList struct {
 	level    int
 	maxLevel int
 	head     *node
+	rand     *rand.Rand
+	buf      []*node
 }
 
 // Iterator is skiplist iterator.
@@ -114,18 +117,25 @@ var FactorP = 0.5
 func newNode(level int, item Item) *node {
 	return &node{
 		item:     item,
-		forwards: make([]*node, level),
+		forwards: make([]*node, level, level),
 	}
 }
 
 // New creates a new SkipList.
 func New(maxLevel int) *SkipList {
+	return NewWithRandSeed(maxLevel, time.Now().UnixNano())
+}
+
+// NewWithRandSeed creates a new SkipList with a given seed.
+func NewWithRandSeed(maxLevel int, seed int64) *SkipList {
 	if maxLevel < 2 {
 		panic("skiplist: bad maxLevel")
 	}
 	return &SkipList{
 		maxLevel: maxLevel,
 		head:     newNode(maxLevel, nil),
+		rand:     rand.New(rand.NewSource(seed)),
+		buf:      make([]*node, maxLevel, maxLevel),
 	}
 }
 
@@ -141,7 +151,7 @@ func (sl *SkipList) MaxLevel() int { return sl.maxLevel }
 // randLevel returns a level between 1 and maxLevel.
 func (sl *SkipList) randLevel() int {
 	level := 1
-	for rand.Int()&0xffff < int(FactorP*float64(0xffff)) {
+	for sl.rand.Int()&0xffff < int(FactorP*float64(0xffff)) {
 		level++
 	}
 	if level < sl.maxLevel {
@@ -150,10 +160,17 @@ func (sl *SkipList) randLevel() int {
 	return sl.maxLevel
 }
 
+func (sl *SkipList) resetBuf() {
+	for i := 0; i < sl.maxLevel; i++ {
+		sl.buf[i] = nil
+	}
+}
+
 // Put adds an item to the skiplist. O(logN)
 func (sl *SkipList) Put(item Item) {
-	// Make the update array and find the node.
-	update := make([]*node, sl.maxLevel)
+	// Reuse update array and find the node.
+	sl.resetBuf()
+	update := sl.buf
 	n := sl.head
 	for i := sl.level - 1; i >= 0; i-- {
 		for n.forwards[i] != nil && n.forwards[i].item.Less(item) {
@@ -199,7 +216,8 @@ func (sl *SkipList) Has(item Item) bool { return sl.Get(item) != nil }
 // Delete an item from skiplist and return it, nil on not found. O(logN)
 func (sl *SkipList) Delete(item Item) Item {
 	// Find node.
-	update := make([]*node, sl.maxLevel)
+	sl.resetBuf()
+	update := sl.buf
 	head := sl.head
 	n := head
 	for i := sl.level - 1; i >= 0; i-- {
