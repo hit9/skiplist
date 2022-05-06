@@ -5,6 +5,8 @@ Package skiplist implements in-memory skiplist.
 
 https://godoc.org/github.com/hit9/skiplist
 
+关于跳跃表的一个中文讲解 https://writings.sh/post/data-structure-skiplist
+
 Example
 -------
 
